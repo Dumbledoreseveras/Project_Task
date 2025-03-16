@@ -63,6 +63,10 @@ plt.axis("off")
 plt.tight_layout(pad=0)
 plt.show()
 
+
+# Visualize the sentiment distribution (positive, neutral, negative) of user reviews using a stacked bar chart, segmented by rating groups (e.g., 1-2 stars, 3-4 stars, 4-5 stars). Include only apps with more than 1,000 reviews and group by the top 5 categories
+
+merged_df = pd.merge(apps_df, reviews_df, on='App', how='inner')
 apps_df = apps_df.dropna(subset=['Reviews'])
 apps_df['Reviews'] = apps_df['Reviews'].fillna(0)
 apps_df['Reviews'] = apps_df['Reviews'].astype(int)
@@ -70,3 +74,43 @@ apps_df['Reviews'] = apps_df['Reviews'].astype(int)
 print(apps_df['Reviews'].dtype)
 
 apps_df = apps_df[apps_df['Reviews']>1000]
+
+apps_df = apps_df.dropna(subset=['Rating'])
+for column in apps_df.columns :
+    apps_df[column].fillna(apps_df[column].mode()[0],inplace=True)
+apps_df.drop_duplicates(inplace=True)
+
+category_counts = apps_df['Category'].value_counts().nlargest(5)
+
+def rating_group(rating):
+  if rating <= 2:
+    return 'Average Rating'
+  elif  2 < rating <= 4:
+    return 'Above Average Rating'
+  else:
+    return 'Good Rating'
+apps_df['rating_group'] = apps_df['Rating'].apply(rating_group)
+
+reviews_df['Sentiment_Score'] = reviews_df['Translated_Review'].apply(lambda x: sia.polarity_scores(str(x))['compound'])
+
+def sentiment_category(score):
+    if score > 0.5:
+        return 'Positive'
+    elif score >= 0:
+        return 'Neutral'
+    else:
+        return 'Negative'
+reviews_df['Sentiment'] = reviews_df['Sentiment_Score'].apply(sentiment_category)
+
+sentiment_distribution = merged_df.groupby(['rating_group', 'Sentiment']).size().unstack(fill_value=0)
+sentiment_distribution.plot(kind='bar', stacked=True, figsize=(10, 6))
+
+plt.title('Sentiment Distribution by Rating Groups')
+plt.xlabel('Rating Groups')
+plt.ylabel('Number of Reviews')
+plt.legend(title='Sentiment')
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Step 9: Show the plot
+plt.show()
