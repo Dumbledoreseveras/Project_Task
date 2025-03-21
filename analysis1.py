@@ -164,8 +164,8 @@ apps_df['Month'] = apps_df['Last Updated'].dt.month
 
 apps_df['Installs'] = pd.to_numeric(apps_df['Installs'].astype(str).str.replace(',','').str.replace('+','').str.replace('Free', '0').astype(int), errors='coerce')
 
-apps_df = apps_df[apps_df['Rating'] <= 4.0]
-apps_df = apps_df[apps_df['Size'] <= 10.0]
+apps_df = apps_df[apps_df['Rating'] >= 4.0]
+apps_df = apps_df[apps_df['Size'] >= 10.0]
 apps_df = apps_df[apps_df['Month'] == 1]
 
 filter_apps_df = apps_df[
@@ -181,7 +181,7 @@ average_ratings = grouped_category['Rating'].mean()
 total_reviews = grouped_category['Reviews'].sum()
 category_stats = pd.DataFrame({
     'Category': average_ratings.index,
-    'Avarage Rating': average_ratings.index,
+    'Average Rating': average_ratings.values,
     'Total Reviews': total_reviews.values
 })
 
