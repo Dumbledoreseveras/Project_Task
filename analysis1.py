@@ -228,7 +228,7 @@ else:
 apps_df['Installs'] = apps_df['Installs'].astype(str).str.replace(',', '').str.replace('+', '').str.replace('Free', '0').astype(int)
 apps_df['Price'] = apps_df['Price'].astype(str).str.replace('$', '').str.replace('Everyone', '0').astype(float)
 apps_df['Revenue'] = apps_df['Price']*apps_df['Installs']
-apps_df['Android Ver'] = pd.to_numeric(apps_df['Android Ver'].str.extract('(\d+\.?\d*)', expand=False), errors='coerce')
+apps_df['Android Ver'] = pd.to_numeric(apps_df['Android Ver'].astype(str).str.extract('(\d+\.?\d*)', expand=False), errors='coerce')
 def convert_size(size):
   if 'M' in size:
     return float (size.replace('M',''))
