@@ -191,12 +191,12 @@ if 15 <= time.hour <= 17:
       y='Rating',
       title='Average Rating by Category',
       labels={'Category': 'Category', 'Rating': 'Average Rating'},
-      color_discrete_sequence=['skyblue']  # Set bar color to skyblue
+      color_discrete_sequence=['skyblue']  
   )
 
   fig.update_layout(
-      xaxis_tickangle=-45,  # Rotate x-axis labels by 45 degrees
-      template='plotly_white'  # Use a white background theme
+      xaxis_tickangle=-45,  
+      template='plotly_white'  
   )
 
   fig.show()
@@ -237,7 +237,7 @@ filtered_apps = apps_df[
 top_categories = apps_df['Category'].value_counts().nlargest(3).index
 filtered_apps_df = apps_df[apps_df['Category'].isin(top_categories)]
 
-grouped_by_category_type = apps_df.groupby(['Category','Type'])
+grouped_by_category_type = filtered_apps_df.groupby(['Category','Type'])
 selected_index = grouped_by_category_type[['Installs', 'Revenue']]
 mean_of_data = selected_index.mean()
 aggregate_data = mean_of_data.unstack()
@@ -285,11 +285,11 @@ if 13<= time.hour<=14:
         title='Comparison of Installs and Revenue (Free vs. Paid Apps)',
         xaxis_title='Category',
         yaxis_title='Values',
-        barmode='group',  # Group bars together
+        barmode='group',  
         template='plotly_white'
     )
 
-    # Show the interactive plot
+    
     fig.show()
 else:
     print("Graph not shown. Current time is outside the display window (1 PM to 2 PM IST).")
