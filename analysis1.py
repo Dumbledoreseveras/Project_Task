@@ -312,3 +312,39 @@ if 13<= time.hour<=14:
     fig.show()
 else:
     print("Graph not shown. Current time is outside the display window (1 PM to 2 PM IST).")
+
+
+# Create an interactive Choropleth map using Plotly to visualize global installs by Category. Apply filters to show data for only the top 5 app categories and highlight category where the number of installs exceeds 1 million. The app category should not start with the characters “A,” “C,” “G,” or “S.” This graph should work only between 6 PM IST and 8 PM IST; apart from that time, we should not show it in the dashboard itself.
+
+apps_df['Installs'] = apps_df['Installs'].astype(str).str.replace(',', '').str.replace('+', '').str.replace('Free', '0').astype(int)
+apps_df = apps_df[apps_df['Category'].str.startswith(('A', 'C', 'G', 'S'))]
+apps_df = apps_df[apps_df['Installs'] > 1000000]
+
+installs_by_category = apps_df[
+    (apps_df['Category'].str.startswith(('A', 'C', 'G', 'S'))) &
+    (apps_df['Installs'] > 1000000)
+]
+
+top_categories = apps_df['Category'].value_counts().nlargest(5).index
+installs_by_category = installs_by_category[installs_by_category['Category'].isin(top_categories)]
+
+import pytz
+from datetime import datetime
+time_zone_ist = pytz.timezone('Asia/Kolkata')
+time = datetime.now(time_zone_ist)
+
+if 18 <= time.hour <= 20:
+  fig = px.choropleth(
+      installs_by_category,
+      locations = 'App',
+      locationmode = 'country names',
+      color = 'Installs',
+      hover_name = 'Category',
+      title = 'Global Installs By Category',
+      color_continuous_scale = 'Viridis', 
+  )
+  fig.show()
+else:
+  print("The Choropleth map is not available outside the time window of 6 PM to 8 PM IST.")
+
+   
