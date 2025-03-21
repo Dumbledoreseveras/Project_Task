@@ -158,51 +158,70 @@ def convert_size(size):
   else:
     return np.nan
 apps_df['Size'] = apps_df['Size'].apply(convert_size)
-apps_df['Last Updated'] = pd.to_datetime(apps_df['Last Updated'], errors = 'coerce')
 
+apps_df['Last Updated'] = pd.to_datetime(apps_df['Last Updated'], errors = 'coerce')
 apps_df['Month'] = apps_df['Last Updated'].dt.month
+
 apps_df['Installs'] = pd.to_numeric(apps_df['Installs'].astype(str).str.replace(',','').str.replace('+','').str.replace('Free', '0').astype(int), errors='coerce')
+
 apps_df = apps_df[apps_df['Rating'] <= 4.0]
 apps_df = apps_df[apps_df['Size'] <= 10.0]
-apps_df = apps_df[apps_df['Last Updated'] == 1]
+apps_df = apps_df[apps_df['Month'] == 1]
 
-filtered_apps_df = apps_df[
-    (apps_df['Rating'] <= 4.0) &
-    (apps_df['Size'] <= 10.0) &
-    (apps_df['Last Updated'] == 1)
+filter_apps_df = apps_df[
+    (apps_df['Rating'] >= 4.0) &
+    (apps_df['Size'] >= 10.0) &
+    (apps_df['Month'] == 1)
 ]
-installs_by_category = filtered_apps_df.groupby('Category')['Installs'].sum().nlargest(10).index
-filtered_apps_df = filtered_apps_df[filtered_apps_df['Category'].isin(installs_by_category)]
+installs_by_category = filter_apps_df.groupby('Category')['Installs'].sum().nlargest(10).index
+filtered_apps_df = filter_apps_df[filter_apps_df['Category'].isin(installs_by_category)]
+
 grouped_category = filtered_apps_df.groupby('Category')
 average_ratings = grouped_category['Rating'].mean()
 total_reviews = grouped_category['Reviews'].sum()
 category_stats = pd.DataFrame({
-    'Rating': average_ratings,
-    'Reviews': total_reviews
-}).reset_index()
+    'Category': average_ratings.index,
+    'Avarage Rating': average_ratings.index,
+    'Total Reviews': total_reviews.values
+})
+
 import pytz
 from datetime import datetime
+
 time_zone_ist = pytz.timezone('Asia/Kolkata')
 time = datetime.now(time_zone_ist)
-if 15 <= time.hour <= 17:
-  fig = px.bar(
-      category_stats,
-      x='Category',
-      y='Rating',
-      title='Average Rating by Category',
-      labels={'Category': 'Category', 'Rating': 'Average Rating'},
-      color_discrete_sequence=['skyblue']  
-  )
 
+import plotly.graph_objects as go
+if 15 <= time.hour <= 17:
+  fig = go.Figure()
+
+  fig.add_trace(go.Bar(
+        x=category_stats['Category'],
+        y=category_stats['Average Rating'],
+        name='Average Rating',
+        marker_color='skyblue'
+    ))
+
+  fig.add_trace(go.Bar(
+        x=category_stats['Category'],
+        y=category_stats['Total Reviews'],
+        name='Total Reviews',
+        marker_color='dodgerblue'
+    ))
+
+    
   fig.update_layout(
-      xaxis_tickangle=-45,  
-      template='plotly_white'  
-  )
+        title='Grouped Bar Chart: Average Rating and Total Reviews by Category',
+        xaxis_title='Category',
+        yaxis_title='Values',
+        barmode='group',  
+        xaxis_tickangle=-45,  
+        template='plotly_white'
+    )
 
   fig.show()
 else:
-  print('Graph not shown. Current time is outside the display window.')
-
+    print('Graph not shown. Current time is outside the display window 3 PM to 5 PM IST.')
 
 # Create a dual-axis chart comparing the average installs and revenue for free vs. paid apps within the top 3 app categories. Apply filters to exclude apps with fewer than 10,000 installs and revenue below $10,000 and android version should be more than 4.0 as well as size should be more than 15M and content rating should be Everyone and app name should not have more than 30 characters including space and special character .this graph should work only between 1 PM IST to 2 PM IST apart from that time we should not show this graph in dashboard itself
 
