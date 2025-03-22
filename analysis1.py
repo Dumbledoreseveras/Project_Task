@@ -283,7 +283,7 @@ if 13<= time.hour<=14:
         marker_color='dodgerblue'
     ))
 
-    # Add line traces for revenue
+    
     fig.add_trace(go.Scatter(
         x=aggregate_data.index, 
         y=aggregate_data[('Revenue', 'Free')], 
@@ -299,7 +299,7 @@ if 13<= time.hour<=14:
         line=dict(color='red')
     ))
 
-    # Update layout
+    
     fig.update_layout(
         title='Comparison of Installs and Revenue (Free vs. Paid Apps)',
         xaxis_title='Category',
